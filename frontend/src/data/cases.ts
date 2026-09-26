@@ -1,0 +1,48 @@
+import { NyayaCase } from '../types';
+
+export const cases: NyayaCase[] = [
+  {
+    id: 'HYD-CYB-2026-0147',
+    name: 'Cyber Fraud — Bank Account Hacking',
+    assignedOfficerIds: ['u1'],
+    priority: 'HIGH',
+    status: 'ACTIVE',
+    secureFileCount: 8,
+    lastActivity: '2026-09-26T10:42:00Z',
+    createdAt: '2026-08-10T09:00:00Z',
+    summary: 'Monitor assigned cases and maintain a tamper-evident chain of custody.',
+  },
+  {
+    id: 'HYD-CYB-2026-0182',
+    name: 'Data Exfiltration — Insider Risk',
+    assignedOfficerIds: ['u1', 'u2'],
+    priority: 'CRITICAL',
+    status: 'ACTIVE',
+    secureFileCount: 12,
+    lastActivity: '2026-09-24T14:10:00Z',
+    createdAt: '2026-08-14T11:25:00Z',
+    summary: 'Encrypted endpoint telemetry review and custody tracking.',
+  },
+  {
+    id: 'HYD-MLA-2026-0110',
+    name: 'Forex Misrepresentation — Audit Trail',
+    assignedOfficerIds: ['u2'],
+    priority: 'MEDIUM',
+    status: 'ARCHIVED',
+    secureFileCount: 4,
+    lastActivity: '2026-09-20T09:00:00Z',
+    createdAt: '2026-08-02T08:00:00Z',
+    summary: 'Archived historical evidence collection and review.',
+  },
+  {
+    id: 'HYD-CYB-2026-0214',
+    name: 'Phishing Campaign — Email Forensics',
+    assignedOfficerIds: ['u1'],
+    priority: 'HIGH',
+    status: 'ACTIVE',
+    secureFileCount: 6,
+    lastActivity: '2026-09-25T10:05:00Z',
+    createdAt: '2026-08-17T10:15:00Z',
+    summary: 'Email chain-of-custody evidence and host-level analysis.',
+  },
+];
