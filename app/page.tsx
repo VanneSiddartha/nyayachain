@@ -25,12 +25,27 @@ export default function NyayaChain() {
   const [transfer, setTransfer] = useState<'pending' | 'approved' | 'rejected' | null>(null)
   const [modal, setModal] = useState<'upload' | 'transfer' | null>(null)
   const [file, setFile] = useState<File | null>(null)
+  const [uploadError, setUploadError] = useState('')
+  const [uploadComplete, setUploadComplete] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const isSupervisor = role === 'Supervisory Officer'
   const canUpload = role === 'Investigating Officer'
   const canTransfer = role === 'Investigating Officer' && !tampered
   const simulateAttack = () => { setTampered(true); setVerified(false); setView('Integrity') }
-  const chooseFile = (f?: File) => { if (f && f.size <= 25 * 1024 * 1024) setFile(f) }
+  const chooseFile = (f?: File) => {
+    setUploadError('')
+    if (!f) return
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png']
+    if (!allowed.includes(f.type)) {
+      setUploadError('Unsupported file type. Choose a PDF, JPG, or PNG file.')
+      return
+    }
+    if (f.size > 25 * 1024 * 1024) {
+      setUploadError('File is too large. Maximum upload size is 25 MB.')
+      return
+    }
+    setFile(f)
+  }
   const pageTitle = view === 'Dashboard' ? 'SECURE EVIDENCE OPERATIONS' : view.toUpperCase()
 
   return <div className="app"><header className="topbar"><div className="brand"><span className="brand-mark"><Fingerprint /></span><div><strong>NyayaChain</strong><small>TAMPER-EVIDENT CUSTODY</small></div></div><nav>{nav.map(item => <button key={item} className={view === item ? 'active' : ''} onClick={() => setView(item)}>{item}</button>)}</nav><div className="profile"><div><b>Officer Ravi Kumar</b><small>{role}</small></div><span className="avatar">RK</span><button className="icon-btn" aria-label="Open menu"><Menu /></button></div></header>
@@ -41,8 +56,9 @@ export default function NyayaChain() {
       {view === 'Transfers' && <Transfers role={role} transfer={transfer} onRequest={canTransfer ? () => { setTransfer('pending'); setModal(null) } : undefined} onApprove={isSupervisor ? () => setTransfer('approved') : undefined} />}
       {view === 'Integrity' && <Integrity tampered={tampered} verified={verified} onVerify={() => setVerified(true)} onAttack={simulateAttack} />}
       {view === 'Audit' && <Audit tampered={tampered} />}
+      {uploadComplete && <div className="upload-toast" role="status"><Check /> Document secured and added to the custody record.</div>}
     </main>
-    {modal && <div className="overlay" onMouseDown={() => setModal(null)}><section className="modal" role="dialog" aria-modal="true" onMouseDown={e => e.stopPropagation()}><div className="modal-head"><div><h2>{modal === 'upload' ? 'Upload secured document' : 'Request version transfer'}</h2><p>All actions are recorded to the audit trail.</p></div><button className="icon-btn" onClick={() => setModal(null)} aria-label="Close"><X /></button></div>{modal === 'upload' ? <><input ref={inputRef} hidden type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => chooseFile(e.target.files?.[0])} /><button className={`dropzone ${file ? 'selected' : ''}`} onClick={() => inputRef.current?.click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); chooseFile(e.dataTransfer.files[0]) }}>{file ? <><FileCheck2 /><b>{file.name}</b><span>{(file.size / 1024 / 1024).toFixed(2)} MB selected · click to replace</span></> : <><Upload /><b>Drop evidence file here</b><span>or click to browse · PDF, JPG, PNG up to 25 MB</span></>}</button><label className="field">Document description<input placeholder="e.g. Forensic report" /></label></> : <div className="transfer-form"><p><b>Document</b> Forensic_Report.pdf · V1</p><p><b>From</b> Officer Ravi Kumar</p><p><b>To</b> Legal Reviewer</p><label className="field">Reason<input defaultValue="Legal review required" /></label></div>}<div className="modal-actions"><button className="button" onClick={() => setModal(null)}>Cancel</button><button className="button primary" disabled={modal === 'upload' && !file} onClick={() => { if (modal === 'transfer') setTransfer('pending'); setModal(null); setFile(null) }}>{modal === 'upload' ? 'Secure document' : 'Submit request'}</button></div></section></div>}
+    {modal && <div className="overlay" onMouseDown={() => setModal(null)}><section className="modal" role="dialog" aria-modal="true" onMouseDown={e => e.stopPropagation()}><div className="modal-head"><div><h2>{modal === 'upload' ? 'Upload secured document' : 'Request version transfer'}</h2><p>All actions are recorded to the audit trail.</p></div><button className="icon-btn" onClick={() => setModal(null)} aria-label="Close"><X /></button></div>{modal === 'upload' ? <><input ref={inputRef} hidden type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => chooseFile(e.target.files?.[0])} /><button type="button" className={`dropzone ${file ? 'selected' : ''}`} onClick={() => inputRef.current?.click()} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputRef.current?.click() } }} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); chooseFile(e.dataTransfer.files[0]) }}>{file ? <><FileCheck2 /><b>{file.name}</b><span>{(file.size / 1024 / 1024).toFixed(2)} MB selected · click to replace</span></> : <><Upload /><b>Drop evidence file here</b><span>or click to browse · PDF, JPG, PNG up to 25 MB</span></>}</button>{uploadError && <p className="upload-error" role="alert">{uploadError}</p>}<label className="field">Document description<input placeholder="e.g. Forensic report" /></label></> : <div className="transfer-form"><p><b>Document</b> Forensic_Report.pdf · V1</p><p><b>From</b> Officer Ravi Kumar</p><p><b>To</b> Legal Reviewer</p><label className="field">Reason<input defaultValue="Legal review required" /></label></div>}<div className="modal-actions"><button className="button" onClick={() => setModal(null)}>Cancel</button><button className="button primary" disabled={modal === 'upload' && !file} onClick={() => { if (modal === 'transfer') { setTransfer('pending') } else { setUploadComplete(true) }; setModal(null); setFile(null); setUploadError('') }}>{modal === 'upload' ? 'Secure document' : 'Submit request'}</button></div></section></div>}
   </div>
 }
 
